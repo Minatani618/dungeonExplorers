@@ -55,9 +55,18 @@ class dungeonController {
     this.ctx.beginPath();
     let x = (actorObj.location.col - 1) * this.squareSize;
     let y = (actorObj.location.row - 1) * this.squareSize;
-    this.ctx.fillStyle = "blue";
+    /* this.ctx.fillStyle = "blue";
     this.ctx.fillRect(x, y, this.squareSize, this.squareSize);
-    this.ctx.fill(); //図形を描画
+    this.ctx.fill(); //図形を描画 */
+
+    // 画像の読み込み
+    var image = new Image();
+    image.src = actorObj.imageFileName; // 画像のパスを指定してください
+
+    // 画像が読み込まれた後の処理
+    image.onload = () => {
+      this.ctx.drawImage(image, x, y, this.squareSize, this.squareSize);
+    };
   }
 
   clearMap() {
@@ -174,6 +183,14 @@ class actor {
         continue;
       }
 
+      //移動先が変わらない場合は飛ばす
+      if (
+        shuffledDestList[i].col == this.location.col &&
+        shuffledDestList[i].row == this.location.row
+      ) {
+        continue;
+      }
+
       //元居た場所を記録する
       this.location.previousRow = this.location.row;
       this.location.previousCol = this.location.col;
@@ -199,6 +216,11 @@ class actor {
     }
     return array;
   }
+
+  //そのアクターのイメージを設定
+  setImageFileName(name) {
+    this.imageFileName = name;
+  }
 }
 
 /* //////////////////////////////////////////////////////////////////// */
@@ -212,17 +234,33 @@ const main = async () => {
   //ダンジョンを初回描画
   dungeonMap.drawDungeon();
 
-  //actorを一体召喚（テスト）
-  const tester = new actor();
-  tester.setLocation(2, 4);
-  dungeonMap.addActorToList(tester);
-  dungeonMap.drawActor(tester);
+  //セラーナ
+  const serana = new actor();
+  serana.setLocation(2, 4);
+  serana.setImageFileName("serana.jpg");
+  dungeonMap.addActorToList(serana);
+  dungeonMap.drawActor(serana);
 
-  //actorをもう一体召喚（テスト）
-  const tester2 = new actor();
-  tester2.setLocation(5, 5);
-  dungeonMap.addActorToList(tester2);
-  dungeonMap.drawActor(tester2);
+  //ミラーク
+  const miraak = new actor();
+  miraak.setLocation(5, 5);
+  miraak.setImageFileName("miraak.jpg");
+  dungeonMap.addActorToList(miraak);
+  dungeonMap.drawActor(miraak);
+
+  //リディア
+  const lydia = new actor();
+  lydia.setLocation(5, 5);
+  lydia.setImageFileName("lydia.jpg");
+  dungeonMap.addActorToList(lydia);
+  dungeonMap.drawActor(lydia);
+
+  //ジェイザルゴ
+  const jzargo = new actor();
+  jzargo.setLocation(5, 5);
+  jzargo.setImageFileName("jzargo.jpg");
+  dungeonMap.addActorToList(jzargo);
+  dungeonMap.drawActor(jzargo);
 
   //2秒ごとに移動画面を再描画する
   setInterval(() => {
