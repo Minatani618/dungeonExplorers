@@ -4,12 +4,39 @@ class dungeonController {
   constructor() {
     this.actorList = [];
     this.mapObj = {};
+    this.setMap();
   }
 
   //ダンジョンの縦横のマス数を決める
   setDungeonSize(width, height) {
     this.width = width;
     this.height = height;
+  }
+
+  //ダンジョンの構成配列
+  setMap() {
+    this.map = [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+      [1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+      [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+      [1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+      [1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ];
   }
 
   //ひとマスのサイズpx決め
@@ -24,6 +51,20 @@ class dungeonController {
 
   //線を引いてダンジョンを作成する
   drawDungeon() {
+    //壁を描画
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        if (this.map[row][col] != 1) {
+          continue;
+        }
+        let x = col * this.squareSize;
+        let y = row * this.squareSize;
+        this.ctx.fillStyle = "brown";
+        this.ctx.fillRect(x, y, this.squareSize, this.squareSize);
+        this.ctx.fill(); //図形を描画
+      }
+    }
+    //線を描画
     //縦
     for (let row = 0; row <= this.height; row++) {
       let startX = 0;
@@ -32,17 +73,16 @@ class dungeonController {
       let endY = row * this.squareSize;
       this.ctx.moveTo(startX, startY);
       this.ctx.lineTo(endX, endY); //線を引く
-      //横
-      for (let col = 0; col <= this.width; col++) {
-        let startX = col * this.squareSize;
-        let startY = 0;
-        let endX = col * this.squareSize;
-        let endY = this.height * this.squareSize;
-        this.ctx.moveTo(startX, startY);
-        this.ctx.lineTo(endX, endY); //線を引く
-      }
     }
-
+    //横
+    for (let col = 0; col <= this.width; col++) {
+      let startX = col * this.squareSize;
+      let startY = 0;
+      let endX = col * this.squareSize;
+      let endY = this.height * this.squareSize;
+      this.ctx.moveTo(startX, startY);
+      this.ctx.lineTo(endX, endY); //線を引く
+    }
     this.ctx.stroke();
   }
 
@@ -104,6 +144,7 @@ class dungeonController {
   setMapObj() {
     this.mapObj.width = this.width;
     this.mapObj.height = this.height;
+    this.mapObj.map = this.map;
   }
 }
 
@@ -131,8 +172,6 @@ class actor {
         col <= this.location.col + 1;
         col++
       ) {
-        /* console.log(`row ${row}, col ${col}`); */
-
         //行先はオブジェクトとしてdestlist配列に追加
         let destObj = {};
         destObj.row = row;
@@ -145,21 +184,28 @@ class actor {
     //8通りの移動先リストをシャッフルする
     const shuffledDestList = this.shuffleArray(destList);
 
-    console.log("---------------------------------------------------");
-    console.log("移動先選定前の情報");
-    console.log(
-      `prow ${this.location.previousRow}, pcol ${this.location.previousCol}`
-    );
-    console.log(`row  ${this.location.row}, col  ${this.location.col}`);
-
-    for (let i = 0; i < shuffledDestList.length; i++) {
-      console.log(shuffledDestList[i]);
-    }
-
     //配列を先頭から見て、進むべき道を決定する
     for (let i = 0; i < shuffledDestList.length; i++) {
-      //移動先がブロックなら次 (未実装)
-      /* if(){} */
+      //移動先がブロックなら次
+      console.log(
+        `次に進むマス ${
+          dungeonObj.map[shuffledDestList[i].row - 1][
+            shuffledDestList[i].col - 1
+          ]
+        }`
+      );
+      console.log(
+        `次に進む座標 y ${shuffledDestList[i].row} ,x ${shuffledDestList[i].col}`
+      );
+      if (
+        dungeonObj.map[shuffledDestList[i].row - 1][
+          shuffledDestList[i].col - 1
+        ] == 1
+      ) {
+        console.log("はいった");
+        continue;
+      }
+      console.log("入らなかった");
 
       //移動先がマップ外なら次
       if (dungeonObj.width < shuffledDestList[i].col) {
@@ -200,12 +246,6 @@ class actor {
       this.location.col = shuffledDestList[i].col;
       break;
     }
-
-    console.log("移動先決定後の情報");
-    console.log(
-      `prow ${this.location.previousRow}, pcol ${this.location.previousCol}`
-    );
-    console.log(`row  ${this.location.row}, col  ${this.location.col}`);
   }
 
   //配列をシャッフルする
@@ -227,7 +267,7 @@ class actor {
 const main = async () => {
   //ダンジョンオブジェクトを作成
   const dungeonMap = new dungeonController();
-  dungeonMap.setDungeonSize(8, 8);
+  dungeonMap.setDungeonSize(20, 20);
   dungeonMap.setSquareSize(40);
   dungeonMap.setCanvas("myCanvas");
 
@@ -236,31 +276,59 @@ const main = async () => {
 
   //セラーナ
   const serana = new actor();
-  serana.setLocation(2, 4);
+  serana.setLocation(5, 5);
   serana.setImageFileName("serana.jpg");
   dungeonMap.addActorToList(serana);
   dungeonMap.drawActor(serana);
 
   //ミラーク
   const miraak = new actor();
-  miraak.setLocation(5, 5);
+  miraak.setLocation(5, 6);
   miraak.setImageFileName("miraak.jpg");
   dungeonMap.addActorToList(miraak);
   dungeonMap.drawActor(miraak);
 
   //リディア
   const lydia = new actor();
-  lydia.setLocation(5, 5);
+  lydia.setLocation(5, 7);
   lydia.setImageFileName("lydia.jpg");
   dungeonMap.addActorToList(lydia);
   dungeonMap.drawActor(lydia);
 
   //ジェイザルゴ
   const jzargo = new actor();
-  jzargo.setLocation(5, 5);
+  jzargo.setLocation(5, 8);
   jzargo.setImageFileName("jzargo.jpg");
   dungeonMap.addActorToList(jzargo);
   dungeonMap.drawActor(jzargo);
+
+  //スシェーナ
+  const susena = new actor();
+  susena.setLocation(6, 5);
+  susena.setImageFileName("susena.jpg");
+  dungeonMap.addActorToList(susena);
+  dungeonMap.drawActor(susena);
+
+  //デリラ
+  const delira = new actor();
+  delira.setLocation(6, 7);
+  delira.setImageFileName("delira.jpg");
+  dungeonMap.addActorToList(delira);
+  dungeonMap.drawActor(delira);
+
+  //イェヴァ
+  const yeva = new actor();
+  yeva.setLocation(6, 8);
+  yeva.setImageFileName("yeva.jpg");
+  dungeonMap.addActorToList(yeva);
+  dungeonMap.drawActor(yeva);
+
+  //ペイ
+  const pei = new actor();
+  pei.setLocation(6, 6);
+  pei.setImageFileName("pei.jpg");
+  dungeonMap.addActorToList(pei);
+  dungeonMap.drawActor(pei);
 
   //2秒ごとに移動画面を再描画する
   setInterval(() => {
