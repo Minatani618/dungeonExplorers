@@ -15,13 +15,14 @@ class dungeonController {
 
   //ダンジョンの構成配列
   setMap() {
-    this.map = [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+    this.map = [];
+    /* this.map = [
+      [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+      [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
       [1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
       [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
@@ -36,7 +37,48 @@ class dungeonController {
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
       [1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ];
+    ]; */
+
+    //まず1で全埋め
+    for (let row = 0; row < 20; row++) {
+      let line = [];
+      for (let col = 0; col < 20; col++) {
+        line.push(0);
+      }
+      this.map.push(line);
+    }
+
+    //
+    for (let row = 1; row < 19; row += 2) {
+      for (let col = 1; col < 19; col += 2) {
+        this.map[row][col] = 1;
+        //方向決め
+        let destID = Math.floor(Math.random() * 3);
+        switch (destID) {
+          case 0: //上
+            this.map[row - 1][col] = 1;
+            break;
+          case 1: //右
+            this.map[row][col + 1] = 1;
+            break;
+          case 2: //下
+            this.map[row + 1][col] = 1;
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+
+    //印字
+    for (let i = 0; i < 20; i++) {
+      let line = "";
+      this.map[i].map((num) => {
+        line += num + " ";
+      });
+      console.log(line);
+    }
   }
 
   //ひとマスのサイズpx決め
@@ -184,29 +226,10 @@ class actor {
     //8通りの移動先リストをシャッフルする
     const shuffledDestList = this.shuffleArray(destList);
 
+    let sheIsStop = true; //行き止まりで進めなかったかどうかのフラグ
+
     //配列を先頭から見て、進むべき道を決定する
     for (let i = 0; i < shuffledDestList.length; i++) {
-      //移動先がブロックなら次
-      console.log(
-        `次に進むマス ${
-          dungeonObj.map[shuffledDestList[i].row - 1][
-            shuffledDestList[i].col - 1
-          ]
-        }`
-      );
-      console.log(
-        `次に進む座標 y ${shuffledDestList[i].row} ,x ${shuffledDestList[i].col}`
-      );
-      if (
-        dungeonObj.map[shuffledDestList[i].row - 1][
-          shuffledDestList[i].col - 1
-        ] == 1
-      ) {
-        console.log("はいった");
-        continue;
-      }
-      console.log("入らなかった");
-
       //移動先がマップ外なら次
       if (dungeonObj.width < shuffledDestList[i].col) {
         continue;
@@ -215,9 +238,20 @@ class actor {
         continue;
       }
       if (shuffledDestList[i].col <= 0) {
+        console.log("col reset");
         continue;
       }
       if (shuffledDestList[i].row <= 0) {
+        console.log("row reset");
+        continue;
+      }
+
+      //移動先がブロックなら次
+      if (
+        dungeonObj.map[shuffledDestList[i].row - 1][
+          shuffledDestList[i].col - 1
+        ] == 1
+      ) {
         continue;
       }
 
@@ -237,6 +271,8 @@ class actor {
         continue;
       }
 
+      console.log(`itere ${i}`);
+
       //元居た場所を記録する
       this.location.previousRow = this.location.row;
       this.location.previousCol = this.location.col;
@@ -244,7 +280,14 @@ class actor {
       //条件にかからなかった座標を次の位置とする
       this.location.row = shuffledDestList[i].row;
       this.location.col = shuffledDestList[i].col;
+      sheIsStop = false;
       break;
+    }
+
+    //行き止まりの時に足踏みする
+    if (sheIsStop) {
+      this.location.previousCol = this.location.col;
+      this.location.previousRow = this.location.row;
     }
   }
 
