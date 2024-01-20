@@ -17,13 +17,13 @@ class dungeonController {
   setMap() {
     this.map = [];
     /* this.map = [
-      [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-      [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-      [1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
-      [1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+      [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+      [1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
       [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1],
       [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -132,23 +132,133 @@ class dungeonController {
     this.actorList.push(actor);
   }
 
-  drawActor(actorObj) {
+  //アクターの初回描画
+  drawActorFirst(actor) {
     //actorの描画位置の左上座標を指定
     this.ctx.beginPath();
-    let x = (actorObj.location.col - 1) * this.squareSize;
-    let y = (actorObj.location.row - 1) * this.squareSize;
-    /* this.ctx.fillStyle = "blue";
-    this.ctx.fillRect(x, y, this.squareSize, this.squareSize);
-    this.ctx.fill(); //図形を描画 */
+    let x = (actor.location.col - 1) * this.squareSize;
+    let y = (actor.location.row - 1) * this.squareSize;
 
     // 画像の読み込み
-    var image = new Image();
-    image.src = actorObj.imageFileName; // 画像のパスを指定してください
+    let image = new Image();
+    image.src = actor.imageFileName; // 画像のパスを指定してください
 
     // 画像が読み込まれた後の処理
     image.onload = () => {
       this.ctx.drawImage(image, x, y, this.squareSize, this.squareSize);
     };
+  }
+
+  //アクターを描画
+  drawActor(actorList) {
+    //同一場所にアクターがいるかを反映した描画用リストを作成
+    let drawingLocationList = []; //描画用リスト
+    for (let i = 0; i < actorList.length; i++) {
+      //描画用リストに入れ込むオブジェクト
+      let obj = {
+        row: actorList[i].location.row,
+        col: actorList[i].location.col,
+        nameArr: [actorList[i].name],
+      };
+
+      //アクターが同一の場所にいるか判定
+      let sameLocation = false;
+      for (let j = 0; j < drawingLocationList.length; j++) {
+        if (
+          drawingLocationList[j].row == obj.row &&
+          drawingLocationList[j].col == obj.col
+        ) {
+          //同一場所にいれば描画用リストのnamearrに追記
+          drawingLocationList[j].nameArr.push(obj.nameArr[0]);
+          sameLocation = true;
+        }
+      }
+
+      //同一場所にいるアクターがいないならそのまま配列に追加
+      if (!sameLocation) {
+        drawingLocationList.push(obj);
+      }
+    }
+
+    console.log(drawingLocationList);
+
+    //描画用リストを順に確認してアクター描画
+    for (let i = 0; i < drawingLocationList.length; i++) {
+      //ロケーションにアクター一人の時
+      if (drawingLocationList[i].nameArr.length == 1) {
+        for (let j = 0; j < this.actorList.length; j++) {
+          if (drawingLocationList[i].nameArr[0] == this.actorList[j].name) {
+            //actorの描画位置の左上座標を指定
+            this.ctx.beginPath();
+            let x = (this.actorList[j].location.col - 1) * this.squareSize;
+            let y = (this.actorList[j].location.row - 1) * this.squareSize;
+
+            // 画像の読み込み
+            let image = new Image();
+            image.src = this.actorList[j].imageFileName; // 画像のパスを指定してください
+
+            // 画像が読み込まれた後の処理
+            image.onload = () => {
+              this.ctx.drawImage(image, x, y, this.squareSize, this.squareSize);
+            };
+          }
+        }
+      }
+
+      //ロケーションにアクターが複数いるとき
+      if (drawingLocationList[i].nameArr.length > 1) {
+        for (let j = 0; j < drawingLocationList[i].nameArr.length; j++) {
+          //同一場所上の何人目かによって表示位置オフセットを設定
+          let offsetX = 0;
+          let offsetY = 0;
+          switch (j) {
+            case 0:
+              break;
+            case 1:
+              offsetX = this.squareSize / 2;
+              break;
+            case 2:
+              offsetY = this.squareSize / 2;
+              break;
+            case 3:
+              offsetX = this.squareSize / 2;
+              offsetY = this.squareSize / 2;
+              break;
+            default:
+              continue;
+              break;
+          }
+
+          //描画するアクターをアクターリストと突き合わせて指定
+          for (let k = 0; k < this.actorList.length; k++) {
+            if (drawingLocationList[i].nameArr[j] == this.actorList[k].name) {
+              //actorの描画位置の左上座標を指定
+              this.ctx.beginPath();
+              let x =
+                (this.actorList[k].location.col - 1) * this.squareSize +
+                offsetX;
+              let y =
+                (this.actorList[k].location.row - 1) * this.squareSize +
+                offsetY;
+              // 画像の読み込み
+              let image = new Image();
+              image.src = this.actorList[k].imageFileName; // 画像のパスを指定してください
+
+              // 画像が読み込まれた後の処理
+              image.onload = () => {
+                this.ctx.drawImage(
+                  image,
+                  x,
+                  y,
+                  this.squareSize / 2,
+                  this.squareSize / 2
+                );
+              };
+            }
+          }
+        }
+      }
+    }
   }
 
   clearMap() {
@@ -171,15 +281,16 @@ class dungeonController {
     //actorクラスのsetNextLocationメソッドにわたすmapObjを作成する
     this.setMapObj();
 
-    //アクターリストにあるアクターをそれぞれ移動させる
+    //アクターリストにあるアクターの移動先を決定
     for (let i = 0; i < this.actorList.length; i++) {
-      /* アクターの移動先を決定させる */
-
+      /* アクターの移動先を決定させて配列格納 */
       this.actorList[i].setNextLocation(this.mapObj);
-
-      /* アクターを描画 */
-      this.drawActor(this.actorList[i]);
     }
+
+    /* アクターを描画 */
+    /* for (let i = 0; i < this.actorList.length; i++) {
+    } */
+    this.drawActor(this.actorList);
   }
 
   //actorクラスのsetNextLocationメソッドにわたすmapObjを作成する
@@ -193,7 +304,8 @@ class dungeonController {
 /* //////////////////////////////////////////////////////////////////// */
 /* マップ上に置かれるキャラクタのクラス */
 class actor {
-  constructor() {
+  constructor(name) {
+    this.name = name;
     this.location = {};
     this.location.previousRow = 0; //初回は0とする
     this.location.previousCol = 0; //初回は0とする
@@ -271,8 +383,6 @@ class actor {
         continue;
       }
 
-      console.log(`itere ${i}`);
-
       //元居た場所を記録する
       this.location.previousRow = this.location.row;
       this.location.previousCol = this.location.col;
@@ -318,60 +428,60 @@ const main = async () => {
   dungeonMap.drawDungeon();
 
   //セラーナ
-  const serana = new actor();
+  const serana = new actor("serana");
   serana.setLocation(5, 5);
   serana.setImageFileName("serana.jpg");
   dungeonMap.addActorToList(serana);
-  dungeonMap.drawActor(serana);
+  dungeonMap.drawActorFirst(serana);
 
   //ミラーク
-  const miraak = new actor();
+  const miraak = new actor("miraak");
   miraak.setLocation(5, 6);
   miraak.setImageFileName("miraak.jpg");
   dungeonMap.addActorToList(miraak);
-  dungeonMap.drawActor(miraak);
+  dungeonMap.drawActorFirst(miraak);
 
   //リディア
-  const lydia = new actor();
+  const lydia = new actor("lydia");
   lydia.setLocation(5, 7);
   lydia.setImageFileName("lydia.jpg");
   dungeonMap.addActorToList(lydia);
-  dungeonMap.drawActor(lydia);
+  dungeonMap.drawActorFirst(lydia);
 
   //ジェイザルゴ
-  const jzargo = new actor();
+  const jzargo = new actor("jzargo");
   jzargo.setLocation(5, 8);
   jzargo.setImageFileName("jzargo.jpg");
   dungeonMap.addActorToList(jzargo);
-  dungeonMap.drawActor(jzargo);
+  dungeonMap.drawActorFirst(jzargo);
 
   //スシェーナ
-  const susena = new actor();
+  const susena = new actor("susena");
   susena.setLocation(6, 5);
   susena.setImageFileName("susena.jpg");
   dungeonMap.addActorToList(susena);
-  dungeonMap.drawActor(susena);
+  dungeonMap.drawActorFirst(susena);
 
   //デリラ
-  const delira = new actor();
+  const delira = new actor("delira");
   delira.setLocation(6, 7);
   delira.setImageFileName("delira.jpg");
   dungeonMap.addActorToList(delira);
-  dungeonMap.drawActor(delira);
+  dungeonMap.drawActorFirst(delira);
 
   //イェヴァ
-  const yeva = new actor();
+  const yeva = new actor("yeva");
   yeva.setLocation(6, 8);
   yeva.setImageFileName("yeva.jpg");
   dungeonMap.addActorToList(yeva);
-  dungeonMap.drawActor(yeva);
+  dungeonMap.drawActorFirst(yeva);
 
   //ペイ
-  const pei = new actor();
+  const pei = new actor("pei");
   pei.setLocation(6, 6);
   pei.setImageFileName("pei.jpg");
   dungeonMap.addActorToList(pei);
-  dungeonMap.drawActor(pei);
+  dungeonMap.drawActorFirst(pei);
 
   //2秒ごとに移動画面を再描画する
   setInterval(() => {
